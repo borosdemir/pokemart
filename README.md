@@ -5,6 +5,10 @@
 ![Framer Motion](https://img.shields.io/badge/Framer-Black?style=for-the-badge&logo=framer&logoColor=blue)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 
+<div align="center">
+  <img src="./public/demo.webp" alt="Aura PokeMart Demo" width="800" />
+</div>
+
 Aura PokeMart es una plataforma interactiva, animada y 100% funcional orientada a la adopción y comercio de Pokémon. Construida utilizando tecnologías de vanguardia para lograr una experiencia de usuario (UX) inmersiva y transiciones nativas ultra-rápidas.
 
 ## ✨ Características Principales
