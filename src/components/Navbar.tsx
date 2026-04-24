@@ -43,8 +43,10 @@ import { FiShoppingCart } from 'react-icons/fi';
 import { MdCatchingPokemon } from 'react-icons/md';
 import { useBreakpointValue } from '@chakra-ui/react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { Avatar, Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
 
 
 
@@ -61,6 +63,8 @@ export default function Navbar({ searchQuery, onSearchChange, navigate }: Navbar
   const cartBtnRef = useRef<HTMLButtonElement>(null);
 
   const { cart, removeFromCart, totalItems, totalPrice } = useCart();
+  const { user, login, logout } = useAuth();
+  const [emailInput, setEmailInput] = useState('');
   const toast = useToast();
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,12 +72,30 @@ export default function Navbar({ searchQuery, onSearchChange, navigate }: Navbar
   };
 
   const handleLogin = () => {
+    if (!emailInput) {
+      toast({ title: 'Error', description: 'Por favor ingresa un correo.', status: 'error', duration: 2000 });
+      return;
+    }
+    login(emailInput);
     onAuthClose();
     navigate('profile');
     toast({
       title: '¡Entrenador conectado!',
       description: 'Has iniciado sesión en tu PokeDex.',
       status: 'success',
+      duration: 3000,
+      isClosable: true,
+      position: 'top',
+    });
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('home');
+    toast({
+      title: 'Sesión cerrada',
+      description: 'Has guardado tu partida exitosamente.',
+      status: 'info',
       duration: 3000,
       isClosable: true,
       position: 'top',
@@ -193,35 +215,50 @@ export default function Navbar({ searchQuery, onSearchChange, navigate }: Navbar
               </Badge>
             )}
           </Box>
-          <Button
-            as={'a'}
-            fontSize={'sm'}
-            fontWeight={600}
-            variant={'link'}
-            onClick={onAuthOpen}
-            cursor="pointer"
-            display={{ base: 'none', md: 'inline-flex' }}
-            color="gray.600"
-            _hover={{ color: "red.500" }}
-          >
-            Ingresar
-          </Button>
-          <Button
-            display={{ base: 'none', md: 'inline-flex' }}
-            fontSize={'sm'}
-            fontWeight={700}
-            color={'white'}
-            bg={'red.500'}
-            onClick={onAuthOpen}
-            rounded="full"
-            _hover={{
-              bg: 'red.600',
-              transform: 'scale(1.05)'
-            }}
-            transition="all 0.2s"
-          >
-            Regístrate
-          </Button>
+          
+          {user ? (
+            <Menu>
+              <MenuButton as={Button} rounded={'full'} variant={'link'} cursor={'pointer'} minW={0}>
+                <Avatar size={'sm'} src={user.avatar} name={user.name} />
+              </MenuButton>
+              <MenuList>
+                <MenuItem onClick={() => navigate('profile')} fontWeight="bold">Mi Perfil (Trainer Card)</MenuItem>
+                <MenuItem onClick={handleLogout} color="red.500">Guardar y Salir</MenuItem>
+              </MenuList>
+            </Menu>
+          ) : (
+            <>
+              <Button
+                as={'a'}
+                fontSize={'sm'}
+                fontWeight={600}
+                variant={'link'}
+                onClick={onAuthOpen}
+                cursor="pointer"
+                display={{ base: 'none', md: 'inline-flex' }}
+                color="gray.600"
+                _hover={{ color: "red.500" }}
+              >
+                Ingresar
+              </Button>
+              <Button
+                display={{ base: 'none', md: 'inline-flex' }}
+                fontSize={'sm'}
+                fontWeight={700}
+                color={'white'}
+                bg={'red.500'}
+                onClick={onAuthOpen}
+                rounded="full"
+                _hover={{
+                  bg: 'red.600',
+                  transform: 'scale(1.05)'
+                }}
+                transition="all 0.2s"
+              >
+                Regístrate
+              </Button>
+            </>
+          )}
         </Stack>
       </Flex>
 
@@ -236,7 +273,9 @@ export default function Navbar({ searchQuery, onSearchChange, navigate }: Navbar
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerHeader borderBottomWidth='1px'>Tu Equipo Pokémon</DrawerHeader>
+          <DrawerHeader borderBottomWidth='1px'>
+            {user ? `Equipo de ${user.name}` : 'Tu Equipo Pokémon'}
+          </DrawerHeader>
 
           <DrawerBody>
             {cart.length === 0 ? (
@@ -294,7 +333,13 @@ export default function Navbar({ searchQuery, onSearchChange, navigate }: Navbar
           <ModalBody pb={6}>
             <FormControl>
               <FormLabel fontWeight="bold">Correo Electrónico</FormLabel>
-              <Input placeholder='ash@kanto.com' focusBorderColor="red.500" rounded="full" />
+              <Input 
+                placeholder='ash@kanto.com' 
+                focusBorderColor="red.500" 
+                rounded="full" 
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+              />
             </FormControl>
 
             <FormControl mt={6}>

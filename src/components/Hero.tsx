@@ -8,15 +8,20 @@ import {
   Button,
   Image,
 } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 interface HeroProps {
   navigate: (page: 'home' | 'legendaries') => void;
 }
 
 export default function Hero({ navigate }: HeroProps) {
+  const { scrollYProgress } = useScroll();
+  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const y = useTransform(scrollYProgress, [0, 0.2], [0, -100]);
+
   return (
-    <Container maxW={'7xl'} overflow="hidden">
+    <Box as={motion.div} style={{ opacity, y }}>
+      <Container maxW={'7xl'} overflow="hidden">
       <Stack
         align={'center'}
         spacing={{ base: 8, md: 10 }}
@@ -149,6 +154,7 @@ export default function Hero({ navigate }: HeroProps) {
           </Box>
         </Flex>
       </Stack>
-    </Container>
+      </Container>
+    </Box>
   );
 }

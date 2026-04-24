@@ -33,7 +33,9 @@ El proyecto fue migrado de un marketplace estático básico a un E-commerce Reac
 - **Routing:** Enrutamiento modular por estado impulsado por `document.startViewTransition()`.
 - **Capa de Servicios:** Lógica de red aislada en `src/services/pokeApi.ts` para mantener la UI pura.
 - **Custom Hooks:** Gestión de estados asíncronos mediante `usePokemon.ts`.
+- **Estado Global:** `AuthContext` y `CartContext` gestionan sesiones persistentes (localStorage) y lógica de compras en tiempo real.
 - **Caché Inteligente:** Almacenamiento en `localStorage` que garantiza cargas instantáneas (0ms) en visitas recurrentes, protegiendo los límites de uso de la PokeAPI.
+- **Testing Unitario:** Pruebas matemáticas blindadas utilizando `Vitest` y `React Testing Library` para garantizar la estabilidad comercial de la pasarela.
 
 ## 🚀 Instalación y Uso
 
