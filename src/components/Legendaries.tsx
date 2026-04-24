@@ -16,6 +16,7 @@ import {
 import { motion } from 'framer-motion';
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import { useCart, Product } from '../context/CartContext';
+import { useLegendaries } from '../hooks/usePokemon';
 
 interface LegendariesProps {
   navigate: (page: 'home' | 'legendaries') => void;
@@ -146,37 +147,8 @@ const LegendaryCard = ({ product }: { product: Product }) => {
 };
 
 export default function Legendaries({ navigate }: LegendariesProps) {
-  const [legendaries, setLegendaries] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // IDs of Gen 1 Legendaries: Articuno, Zapdos, Moltres, Mewtwo, Mew
-    const legendaryIds = [144, 145, 146, 150, 151];
-    
-    setLoading(true);
-    Promise.all(
-      legendaryIds.map(id => fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then(res => res.json()))
-    ).then((data) => {
-      const mappedLegendaries: Product[] = data.map((pokemon: any) => {
-        const typeEn = pokemon.types[0].type.name;
-        const typeEs = typeTranslations[typeEn] || typeEn;
-        
-        return {
-          id: pokemon.id,
-          title: pokemon.name,
-          price: pokemon.id * 10000, // Very expensive
-          description: `Un Pokémon legendario de poder inmenso.`,
-          category: typeEs,
-          image: pokemon.sprites.other['official-artwork'].front_default,
-        };
-      });
-      setLegendaries(mappedLegendaries);
-      setLoading(false);
-    }).catch(err => {
-      console.error("Error fetching legendaries", err);
-      setLoading(false);
-    });
-  }, []);
+  const legendaryIds = [144, 145, 146, 150, 151];
+  const { legendaries, loading, error } = useLegendaries(legendaryIds);
 
   return (
     <Box bg="gray.900" minH="100vh" py={20} position="relative" overflow="hidden">

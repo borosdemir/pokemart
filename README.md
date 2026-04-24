@@ -21,12 +21,15 @@ Aura PokeMart es una plataforma interactiva, animada y 100% funcional orientada 
 
 ## 🛠️ Arquitectura y Tecnologías
 
-El proyecto fue migrado de un marketplace estático básico a un E-commerce React moderno utilizando:
+El proyecto fue migrado de un marketplace estático básico a un E-commerce React moderno utilizando una **Arquitectura Limpia (Separation of Concerns)**:
 - **Core:** `React 18` + `Vite` (Rendimiento y velocidad de recarga).
 - **Tipado Estricto:** `TypeScript` para asegurar el flujo de la data de la PokeAPI.
 - **UI/UX:** Componentes de `Chakra UI v2`.
 - **Físicas:** `framer-motion` envolviendo elementos nativos y de Chakra (`Box as={motion.div}`).
 - **Routing:** Enrutamiento modular por estado impulsado por `document.startViewTransition()`.
+- **Capa de Servicios:** Lógica de red aislada en `src/services/pokeApi.ts` para mantener la UI pura.
+- **Custom Hooks:** Gestión de estados asíncronos mediante `usePokemon.ts`.
+- **Caché Inteligente:** Almacenamiento en `localStorage` que garantiza cargas instantáneas (0ms) en visitas recurrentes, protegiendo los límites de uso de la PokeAPI.
 
 ## 🚀 Instalación y Uso
 

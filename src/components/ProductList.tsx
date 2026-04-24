@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useCart, Product } from '../context/CartContext';
-
+import { usePokemonList } from '../hooks/usePokemon';
 
 interface ProductListProps {
   searchQuery: string;
@@ -137,41 +137,7 @@ const ProductCard = ({ product }: { product: Product }) => {
 };
 
 export default function ProductList({ searchQuery, selectedCategory }: ProductListProps) {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setLoading(true);
-    // Fetch top 151 Pokemon
-    fetch('https://pokeapi.co/api/v2/pokemon?limit=151')
-      .then((res) => res.json())
-      .then(async (data) => {
-        // Fetch details for each to get image and type
-        const detailedPromises = data.results.map((p: any) => fetch(p.url).then(res => res.json()));
-        const detailedData = await Promise.all(detailedPromises);
-        
-        const mappedProducts: Product[] = detailedData.map((pokemon: any) => {
-          const typeEn = pokemon.types[0].type.name;
-          const typeEs = typeTranslations[typeEn] || typeEn;
-          
-          return {
-            id: pokemon.id,
-            title: pokemon.name,
-            price: pokemon.id * 10, // Invented price
-            description: `Un asombroso Pokémon de tipo ${typeEs}.`,
-            category: typeEs,
-            image: pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default,
-          };
-        });
-
-        setProducts(mappedProducts);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching pokemons", err);
-        setLoading(false);
-      });
-  }, []);
+  const { products, loading, error } = usePokemonList(151);
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase());
