@@ -13,10 +13,11 @@ import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 
 const NAV_LINKS = [
-  { label: "Inicio", href: "/" },
-  { label: "Catálogo", href: "/catalogo" },
-  { label: "Géneros", href: "/generos" },
-  { label: "Torneos", href: "/torneos" },
+  { label: "Inicio", href: "/", icon: "" },
+  { label: "Catálogo", href: "/catalogo", icon: "" },
+  { label: "Géneros", href: "/generos", icon: "" },
+  { label: "Cyber Pong", href: "/minijuego", icon: "🏓", special: true },
+  { label: "Torneos", href: "/torneos", icon: "" },
 ];
 
 export default function Navbar() {
@@ -60,8 +61,13 @@ export default function Navbar() {
             <li key={link.href}>
               <Link
                 href={link.href}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:text-white hover:bg-white/5"
+                className={`rounded-lg px-3 py-2 text-sm font-medium transition-all duration-300 ${
+                  "special" in link && link.special
+                    ? "text-[#00f0ff] hover:text-white hover:bg-[#00f0ff]/10 hover:shadow-[0_0_15px_rgba(0,240,255,0.15)]"
+                    : "text-zinc-400 hover:text-white hover:bg-white/5"
+                }`}
               >
+                {link.icon && <span className="mr-1">{link.icon}</span>}
                 {link.label}
               </Link>
             </li>

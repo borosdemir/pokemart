@@ -21,8 +21,8 @@ const FOOTER_SECTIONS = [
     links: [
       { label: "Catálogo", href: "/catalogo" },
       { label: "Géneros", href: "/generos" },
+      { label: "🏓 Cyber Pong", href: "/minijuego" },
       { label: "Torneos", href: "/torneos" },
-      { label: "Ranking", href: "/ranking" },
     ],
   },
   {

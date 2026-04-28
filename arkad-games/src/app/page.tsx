@@ -128,9 +128,76 @@ export default async function Home() {
           </div>
         </div>
       </section>
+      {/* ════════════════════════════════════════════════════════
+          SECCIÓN 2: BANNER CYBER PONG — Prominente y fácil de encontrar
+          ════════════════════════════════════════════════════════ */}
+      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+        <Link
+          href="/minijuego"
+          id="cyberpong-banner"
+          className="
+            group relative block overflow-hidden rounded-3xl
+            border border-[#00f0ff]/20 bg-gradient-to-br from-[#0a0a1a] via-[#12121f] to-[#0d0d18]
+            p-8 sm:p-10
+            transition-all duration-500
+            hover:border-[#00f0ff]/50
+            hover:shadow-[0_0_60px_rgba(0,240,255,0.12),0_0_120px_rgba(176,38,255,0.08)]
+          "
+        >
+          {/* Decorative grid */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-[0.04]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(0,240,255,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.3) 1px,transparent 1px)",
+              backgroundSize: "40px 40px",
+            }}
+          />
+          {/* Glow blobs */}
+          <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-[#00f0ff]/10 blur-[80px] transition-all duration-700 group-hover:bg-[#00f0ff]/20" />
+          <div aria-hidden="true" className="pointer-events-none absolute -left-10 -bottom-10 h-40 w-40 rounded-full bg-[#b026ff]/10 blur-[60px]" />
+
+          <div className="relative flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:justify-between">
+            {/* Left content */}
+            <div className="text-center sm:text-left">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#00f0ff]/30 bg-[#00f0ff]/10 px-3 py-1 text-xs font-semibold text-[#00f0ff]">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#00f0ff] opacity-75" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#00f0ff]" />
+                </span>
+                JUEGA AHORA
+              </div>
+              <h2 className="text-2xl font-extrabold text-white sm:text-3xl lg:text-4xl">
+                🏓 Cyber Pong
+              </h2>
+              <p className="mt-2 max-w-lg text-zinc-400 leading-relaxed">
+                Un clásico reinventado con estética cyberpunk. Partículas neón,
+                efectos de brillo y una IA desafiante. ¿Puedes llegar a 7 primero?
+              </p>
+            </div>
+
+            {/* Right CTA */}
+            <div className="flex-shrink-0">
+              <span className="
+                inline-flex items-center gap-2 rounded-full
+                bg-[#00f0ff] px-8 py-4 text-base font-bold text-black
+                transition-all duration-300
+                group-hover:shadow-[0_0_30px_rgba(0,240,255,0.5)]
+                group-hover:scale-105
+              ">
+                Jugar ahora
+                <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="transition-transform group-hover:translate-x-1">
+                  <path d="M3 8h10M9 4l4 4-4 4" />
+                </svg>
+              </span>
+            </div>
+          </div>
+        </Link>
+      </section>
 
       {/* ════════════════════════════════════════════════════════
-          SECCIÓN 2: JUEGOS DESTACADOS
+          SECCIÓN 3: JUEGOS DESTACADOS
           ════════════════════════════════════════════════════════ */}
       <section
         id="featured-games"
