@@ -2,63 +2,99 @@
  * api.ts — Servicio para consumir la API de FreeToGame.
  *
  * ¿Qué hace este archivo?
- * Aquí centralizamos todas las llamadas a la API externa.
+ * Aquí centralizamos TODAS las llamadas a la API externa.
  * Piensa en este archivo como el "mensajero" que va a buscar
  * la información de los juegos al servidor de FreeToGame
  * y nos la trae lista para usar.
  *
  * ¿Por qué lo separamos?
  * Si mañana cambiamos de API, solo tocamos ESTE archivo,
- * sin romper nada en el resto de la aplicación. Esto se llama
- * "Separación de responsabilidades" (Separation of Concerns).
+ * sin romper nada en el resto de la aplicación (Separation of Concerns).
  */
 
-// ─── Tipos (TypeScript) ────────────────────────────────────────
-// Definimos la "forma" que tiene cada juego que nos llega de la API.
-// TypeScript nos obliga a ser explícitos, así evitamos errores
-// por datos inesperados (ej: si escribes "tittle" en vez de "title",
-// TypeScript te lo marca como error).
-
+// ─── Tipos básicos (lista de juegos) ──────────────────────────
 export interface Game {
   id: number;
   title: string;
-  thumbnail: string;          // URL de la imagen de portada
-  short_description: string;  // Descripción breve del juego
-  game_url: string;           // Enlace para jugar
-  genre: string;              // Género: Shooter, MMORPG, etc.
-  platform: string;           // Plataforma: PC, Browser, etc.
-  publisher: string;          // Empresa que lo publicó
-  developer: string;          // Empresa que lo desarrolló
-  release_date: string;       // Fecha de lanzamiento
+  thumbnail: string;
+  short_description: string;
+  game_url: string;
+  genre: string;
+  platform: string;
+  publisher: string;
+  developer: string;
+  release_date: string;
   freetogame_profile_url: string;
 }
 
+// ─── Tipos detallados (un solo juego con toda la info) ─────────
+// Cuando pedimos /game?id=X, la API nos devuelve MUCHA más info
+// que en la lista general. Aquí definimos esa estructura completa.
+
+export interface Screenshot {
+  id: number;
+  image: string;  // URL de la captura de pantalla
+}
+
+export interface SystemRequirements {
+  os: string;
+  processor: string;
+  memory: string;
+  graphics: string;
+  storage: string;
+}
+
+export interface GameDetail {
+  id: number;
+  title: string;
+  thumbnail: string;
+  status: string;              // "Live" o "Cancelled"
+  short_description: string;
+  description: string;         // Descripción LARGA y detallada
+  game_url: string;
+  genre: string;
+  platform: string;
+  publisher: string;
+  developer: string;
+  release_date: string;
+  freetogame_profile_url: string;
+  minimum_system_requirements: SystemRequirements | null;
+  screenshots: Screenshot[];
+}
+
+// ─── Lista de géneros disponibles ──────────────────────────────
+// La API soporta estos géneros como filtro. Los usaremos para
+// construir la página de géneros y los filtros del catálogo.
+export const GENRES = [
+  { slug: "mmorpg", label: "MMORPG", emoji: "⚔️" },
+  { slug: "shooter", label: "Shooter", emoji: "🔫" },
+  { slug: "moba", label: "MOBA", emoji: "🏰" },
+  { slug: "strategy", label: "Estrategia", emoji: "♟️" },
+  { slug: "racing", label: "Carreras", emoji: "🏎️" },
+  { slug: "sports", label: "Deportes", emoji: "⚽" },
+  { slug: "social", label: "Social", emoji: "👥" },
+  { slug: "fighting", label: "Pelea", emoji: "🥊" },
+  { slug: "mmorts", label: "MMORTS", emoji: "🗺️" },
+  { slug: "survival", label: "Supervivencia", emoji: "🏕️" },
+  { slug: "card", label: "Cartas", emoji: "🃏" },
+  { slug: "battle-royale", label: "Battle Royale", emoji: "🎯" },
+  { slug: "fantasy", label: "Fantasía", emoji: "🧙" },
+  { slug: "sci-fi", label: "Ciencia Ficción", emoji: "🚀" },
+  { slug: "action-rpg", label: "Action RPG", emoji: "⚡" },
+  { slug: "horror", label: "Horror", emoji: "👻" },
+] as const;
+
 // ─── URL Base ──────────────────────────────────────────────────
-// Usamos una constante para no repetir la URL en cada función.
 const BASE_URL = "https://www.freetogame.com/api";
 
 // ─── Funciones ─────────────────────────────────────────────────
 
 /**
  * Obtiene una lista de juegos gratuitos.
- *
- * @param limit - Cantidad máxima de juegos a devolver (por defecto 12).
- * @returns Un arreglo (array) de objetos tipo `Game`.
- *
- * ¿Cómo funciona?
- * 1. Hacemos un `fetch` (petición HTTP) al endpoint de la API.
- * 2. Convertimos la respuesta a JSON (un formato que JavaScript entiende).
- * 3. Cortamos el arreglo para devolver solo los primeros `limit` juegos.
- *
- * NOTA: `fetch` en Next.js Server Components se ejecuta en el SERVIDOR,
- * no en el navegador del usuario. Esto significa:
- *   - No hay problemas de CORS (restricciones del navegador).
- *   - La página carga más rápido porque los datos llegan pre-renderizados.
+ * @param limit - Cantidad máxima (0 = todos).
  */
-export async function getGames(limit: number = 12): Promise<Game[]> {
+export async function getGames(limit: number = 0): Promise<Game[]> {
   const response = await fetch(`${BASE_URL}/games`, {
-    // Next.js cachea las peticiones por defecto. Con `revalidate`,
-    // le decimos que refresque los datos cada 1 hora (3600 segundos).
     next: { revalidate: 3600 },
   });
 
@@ -67,22 +103,31 @@ export async function getGames(limit: number = 12): Promise<Game[]> {
   }
 
   const games: Game[] = await response.json();
+  return limit > 0 ? games.slice(0, limit) : games;
+}
 
-  // `.slice(0, limit)` toma solo los primeros `limit` elementos.
-  // Es como decir "dame los primeros 12 de la lista".
-  return games.slice(0, limit);
+/**
+ * Obtiene el DETALLE COMPLETO de un juego por su ID.
+ * Incluye screenshots, descripción larga, requisitos del sistema, etc.
+ */
+export async function getGameById(id: number): Promise<GameDetail> {
+  const response = await fetch(`${BASE_URL}/game?id=${id}`, {
+    next: { revalidate: 3600 },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error al obtener juego #${id}: ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
 /**
  * Obtiene juegos filtrados por categoría/género.
- *
- * @param category - El género a buscar (ej: "shooter", "mmorpg").
- * @param limit - Cantidad máxima de resultados.
- * @returns Un arreglo de juegos que pertenecen a esa categoría.
  */
 export async function getGamesByCategory(
   category: string,
-  limit: number = 12
+  limit: number = 0
 ): Promise<Game[]> {
   const response = await fetch(
     `${BASE_URL}/games?category=${category}`,
@@ -94,21 +139,38 @@ export async function getGamesByCategory(
   }
 
   const games: Game[] = await response.json();
-  return games.slice(0, limit);
+  return limit > 0 ? games.slice(0, limit) : games;
+}
+
+/**
+ * Obtiene juegos filtrados por plataforma.
+ * @param platform - "pc", "browser" o "all".
+ */
+export async function getGamesByPlatform(
+  platform: string,
+  limit: number = 0
+): Promise<Game[]> {
+  const url =
+    platform === "all"
+      ? `${BASE_URL}/games`
+      : `${BASE_URL}/games?platform=${platform}`;
+
+  const response = await fetch(url, { next: { revalidate: 3600 } });
+
+  if (!response.ok) {
+    throw new Error(`Error al obtener juegos por plataforma: ${response.statusText}`);
+  }
+
+  const games: Game[] = await response.json();
+  return limit > 0 ? games.slice(0, limit) : games;
 }
 
 /**
  * Obtiene juegos ordenados por un criterio específico.
- *
- * @param sortBy - Criterio de ordenamiento:
- *   - "release-date": Los más nuevos primero.
- *   - "popularity": Los más populares primero.
- *   - "alphabetical": Orden alfabético.
- *   - "relevance": Los más relevantes primero.
  */
 export async function getGamesSortedBy(
   sortBy: "release-date" | "popularity" | "alphabetical" | "relevance",
-  limit: number = 12
+  limit: number = 0
 ): Promise<Game[]> {
   const response = await fetch(
     `${BASE_URL}/games?sort-by=${sortBy}`,
@@ -120,5 +182,5 @@ export async function getGamesSortedBy(
   }
 
   const games: Game[] = await response.json();
-  return games.slice(0, limit);
+  return limit > 0 ? games.slice(0, limit) : games;
 }
